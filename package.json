@@ -1,0 +1,11 @@
+{
+  "name": "@markmirro/image",
+  "version": "0.1.0",
+  "author": {
+    "name": "Hsiaoming Yang",
+    "email": "me@lepture.com",
+    "url": "https://lepture.com"
+  },
+  "dependencies": {
+  }
+}
