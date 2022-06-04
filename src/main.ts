@@ -57,6 +57,10 @@ const galleryEvents = EditorView.domEventHandlers({
     const detail = event.detail as { to: number }
     view.dispatch({ selection: EditorSelection.cursor(detail.to), scrollIntoView: true })
   },
+  "select-image": (event, view: EditorView) => {
+    const detail = event.detail as { from: number, to: number }
+    view.dispatch({ selection: EditorSelection.range(detail.from, detail.to), scrollIntoView: true })
+  },
   "delete-image": (event, view: EditorView) => {
     const detail = event.detail as { from: number, to: number }
     view.dispatch({

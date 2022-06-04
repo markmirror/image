@@ -9,13 +9,12 @@ interface RatioMap {
 
 export const galleryTheme = EditorView.baseTheme({
   ".mm-gallery img": {
-    "max-width": "100%",
+    maxWidth: "100%",
+    verticalAlign: "middle",
   },
   ".mm-gallery-column": {
     display: "flex",
     width: "100%",
-    marginLeft: "-2px",
-    marginRight: "-2px",
   },
   ".mm-gallery-column figure": {
     position: "relative",
@@ -58,10 +57,7 @@ export class GalleryWidget extends WidgetType {
   }
 
   ignoreEvent(event: Event): boolean {
-    if (event.type === 'click-image' || event.type === 'delete-image') {
-      return false
-    }
-    return true
+    return !/^(click|select|delete)-image$/.test(event.type)
   }
 
   toDOM (): HTMLElement {
@@ -87,19 +83,16 @@ export class GalleryWidget extends WidgetType {
           const delButton = document.createElement('button')
           delButton.type = "button"
           delButton.ariaLabel = "Delete"
-          delButton.addEventListener('click', e => {
-            e.stopPropagation()
-            e.preventDefault()
-            const event = new CustomEvent('delete-image', { detail: item, bubbles: true })
-            delButton.dispatchEvent(event)
+          delButton.addEventListener("click", e => {
+            fireEvent(e, delButton, 'delete-image', item)
           })
           figure.appendChild(img)
           figure.append(delButton)
-          figure.addEventListener('click', e => {
-            e.stopPropagation()
-            e.preventDefault()
-            const event = new CustomEvent('click-image', { detail: item, bubbles: true })
-            figure.dispatchEvent(event)
+          figure.addEventListener("click", e => {
+            fireEvent(e, figure, 'click-image', item)
+          })
+          figure.addEventListener("dblclick", e => {
+            fireEvent(e, figure, 'select-image', item)
           })
           column.appendChild(figure)
         })
@@ -115,4 +108,11 @@ export class GalleryWidget extends WidgetType {
     })
     return gallery
   }
+}
+
+function fireEvent (event: Event, element: HTMLElement, eventName: string, detail: any) {
+  event.stopPropagation()
+  event.preventDefault()
+  const _ev = new CustomEvent(eventName, { detail, bubbles: true })
+  element.dispatchEvent(_ev)
 }
