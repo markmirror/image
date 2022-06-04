@@ -61,7 +61,6 @@ export class GalleryWidget extends WidgetType {
   }
 
   toDOM (): HTMLElement {
-    console.log('toDOM')
     const gallery = document.createElement('div')
     gallery.className = 'mm-gallery'
     this.images.forEach(items => {
