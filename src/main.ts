@@ -1,7 +1,7 @@
 import { EditorState, EditorSelection, Range, RangeSet, StateField } from '@codemirror/state'
 import { Decoration, DecorationSet, EditorView } from '@codemirror/view'
 import { syntaxTree } from '@codemirror/language'
-import { ImageNode } from './types'
+import { ImageNode, Position } from './types'
 import { GalleryWidget, galleryTheme } from './widgets'
 import parseImage from './parseImage'
 
@@ -21,9 +21,7 @@ function decorate (state: EditorState, thumbnail: (url: string) => string): Deco
         return true
       }
 
-      if (type.name === "Image") {
-        // TODO: check if is uploading
-      } else {
+      if (type.name !== "Image") {
         canAdd = false
       }
       return false
@@ -31,14 +29,15 @@ function decorate (state: EditorState, thumbnail: (url: string) => string): Deco
     leave ({ type, from, to }) {
       if (canAdd && type.name === 'Paragraph') {
         const text = state.doc.sliceString(from, to)
-        const images: ImageNode[][] = parseImage(text, from, thumbnail)
+        const images: ImageNode[][] = parseImage(text, thumbnail)
         if (images.length) {
-          const w = Decoration.widget({
-            widget: new GalleryWidget(images),
+          const widget = new GalleryWidget(images, from)
+          const deco = Decoration.widget({
+            widget: widget,
             side: -1,
             block: true,
           })
-          widgets.push(w.range(from))
+          widgets.push(deco.range(from))
         }
       }
     },
@@ -54,15 +53,15 @@ function decorate (state: EditorState, thumbnail: (url: string) => string): Deco
 
 const galleryEvents = EditorView.domEventHandlers({
   "click-image": (event, view: EditorView) => {
-    const detail = event.detail as { to: number }
+    const detail = event.detail as Position
     view.dispatch({ selection: EditorSelection.cursor(detail.to), scrollIntoView: true })
   },
   "select-image": (event, view: EditorView) => {
-    const detail = event.detail as { from: number, to: number }
+    const detail = event.detail as Position
     view.dispatch({ selection: EditorSelection.range(detail.from, detail.to), scrollIntoView: true })
   },
   "delete-image": (event, view: EditorView) => {
-    const detail = event.detail as { from: number, to: number }
+    const detail = event.detail as Position
     view.dispatch({
       selection: EditorSelection.cursor(detail.from),
       changes: [{ from: detail.from, to: detail.to }],

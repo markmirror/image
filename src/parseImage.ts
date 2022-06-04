@@ -1,7 +1,7 @@
 import { ImageNode } from "./types"
 
 
-export default function parse(src: string, from: number, thumbnail: (url: string) => string): ImageNode[][] {
+export default function parse(src: string, thumbnail: (url: string) => string): ImageNode[][] {
   const startRe = /\s*!\[/g
   let m = startRe.exec(src)
   if (!m || m.index !== 0) {
@@ -17,7 +17,7 @@ export default function parse(src: string, from: number, thumbnail: (url: string
       rv.push(column)
       column = []
     }
-    const node: ImageNode = { src: "", from: from + m.index, to: 0 }
+    const node: ImageNode = { src: "", from: m.index, to: 0 }
     const found1 = parseLinkText(src, startRe.lastIndex)
     if (!found1) {
       return []
@@ -44,7 +44,7 @@ export default function parse(src: string, from: number, thumbnail: (url: string
     if (!end) {
       return []
     }
-    node.to = from + end
+    node.to = end
     column.push(node)
 
     pos = end

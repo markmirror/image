@@ -1,11 +1,5 @@
 import { WidgetType, EditorView } from '@codemirror/view'
-import { ImageNode } from './types'
-
-
-interface RatioMap {
-  figure: HTMLElement,
-  ratio: number,
-}
+import { ImageNode, RatioMap } from './types'
 
 export const galleryTheme = EditorView.baseTheme({
   ".mm-gallery img": {
@@ -32,8 +26,11 @@ export const galleryTheme = EditorView.baseTheme({
 })
 
 export class GalleryWidget extends WidgetType {
-  constructor (readonly images: ImageNode[][]) {
+  private origin: GalleryWidget
+
+  constructor (readonly images: ImageNode[][], public offset: number) {
     super()
+    this.origin = this
   }
 
   get id () {
@@ -53,7 +50,13 @@ export class GalleryWidget extends WidgetType {
     if (this.columns !== other.columns) {
       return false
     }
-    return this.id === other.id
+    if (this.id === other.id) {
+      // chain origin for updating offset
+      other.origin = this.origin
+      this.origin.offset = other.offset
+      return true
+    }
+    return false
   }
 
   ignoreEvent(event: Event): boolean {
@@ -67,9 +70,25 @@ export class GalleryWidget extends WidgetType {
       const column = document.createElement('div')
       column.className = 'mm-gallery-column'
       const results = items.map(item => {
+        const figure = document.createElement('figure')
+        const img = new Image()
+        img.alt = item.alt || ''
+        img.title = item.title || ''
+
+        const delButton = document.createElement('button')
+        delButton.type = "button"
+        delButton.ariaLabel = "Delete"
+        delButton.addEventListener("click", e => {
+          fireEvent(e, delButton, 'delete-image', item, this.offset)
+        })
+
+        figure.addEventListener("click", e => {
+          fireEvent(e, figure, 'click-image', item, this.offset)
+        })
+        figure.addEventListener("dblclick", e => {
+          fireEvent(e, figure, 'select-image', item, this.offset)
+        })
         return new Promise<RatioMap>((resolve, reject) => {
-          const figure = document.createElement('figure')
-          const img = new Image()
           img.onload = function () {
             resolve({ figure, ratio: img.naturalWidth / img.naturalHeight })
           }
@@ -77,22 +96,8 @@ export class GalleryWidget extends WidgetType {
             reject(e)
           }
           img.src = item.src
-          img.alt = item.alt || ''
-          img.title = item.title || ''
-          const delButton = document.createElement('button')
-          delButton.type = "button"
-          delButton.ariaLabel = "Delete"
-          delButton.addEventListener("click", e => {
-            fireEvent(e, delButton, 'delete-image', item)
-          })
           figure.appendChild(img)
           figure.append(delButton)
-          figure.addEventListener("click", e => {
-            fireEvent(e, figure, 'click-image', item)
-          })
-          figure.addEventListener("dblclick", e => {
-            fireEvent(e, figure, 'select-image', item)
-          })
           column.appendChild(figure)
         })
       })
@@ -109,9 +114,10 @@ export class GalleryWidget extends WidgetType {
   }
 }
 
-function fireEvent (event: Event, element: HTMLElement, eventName: string, detail: any) {
+function fireEvent (event: Event, element: HTMLElement, eventName: string, image: ImageNode, offset: number) {
   event.stopPropagation()
   event.preventDefault()
+  const detail = { ...image , from: offset + image.from, to: offset + image.to }
   const _ev = new CustomEvent(eventName, { detail, bubbles: true })
   element.dispatchEvent(_ev)
 }

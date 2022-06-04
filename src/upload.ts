@@ -16,19 +16,19 @@ export function uploadImage (upload: (file: File) => Promise<string>, options: U
   const onPaste = (event: Event, view: EditorView) => {
     const { clipboardData } = event as ClipboardEvent
     const files = clipboardData?.files as FileList
-    if (files) {
+    if (files && files.length) {
       for (let i = 0; i < files.length; i++) {
         handleUpload(view, files[i], i, upload)
       }
       return true
     }
-    return true
+    return false
   }
 
   const onDrop = (event: Event, view: EditorView) => {
     const { clientX, clientY, dataTransfer } = event as DragEvent
     const files = dataTransfer?.files as FileList
-    if (files) {
+    if (files && files.length) {
       const pos = view.posAtCoords({x: clientX, y: clientY})
       if (pos !== null) {
         // update cursor position
