@@ -30,6 +30,10 @@ export const galleryTheme = EditorView.baseTheme({
     background: "rgba(255, 255, 255, 0.5)",
     border: "none",
     cursor: "pointer",
+    opacity: 0.5,
+  },
+  ".mm-gallery-column button:hover": {
+    opacity: 1,
   },
   ".mm-gallery-column svg": {
     verticalAlign: "middle",
