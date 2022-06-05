@@ -1,7 +1,7 @@
 import { ImageNode } from "./types"
 
 
-export default function parse(src: string, thumbnail: (url: string) => string): ImageNode[][] {
+export default function parse(src: string, resolve: (url: string) => string): ImageNode[][] {
   const startRe = /\s*!\[/g
   let m = startRe.exec(src)
   if (!m || m.index !== 0) {
@@ -28,11 +28,12 @@ export default function parse(src: string, thumbnail: (url: string) => string): 
     if (!found2) {
       return []
     }
-    // only preview online image
-    if (!/^(blob:)?https?:\/\//.test(found2.href)) {
+
+    const href = resolve(found2.href)
+    if (!href) {
       return []
     }
-    node.src = thumbnail(found2.href)
+    node.src = href
     pos = found2.end
 
     const found3 = parseLinkTitle(src, pos)

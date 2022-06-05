@@ -6,7 +6,7 @@ import { GalleryWidget, galleryTheme } from './widgets'
 import parseImage from './parseImage'
 
 
-function decorate (state: EditorState, thumbnail: (url: string) => string): DecorationSet {
+function decorate (state: EditorState, resolve: (url: string) => string): DecorationSet {
   const widgets: Range<Decoration>[] = []
 
   let canAdd = false
@@ -29,7 +29,7 @@ function decorate (state: EditorState, thumbnail: (url: string) => string): Deco
     leave ({ type, from, to }) {
       if (canAdd && type.name === 'Paragraph') {
         const text = state.doc.sliceString(from, to)
-        const images: ImageNode[][] = parseImage(text, thumbnail)
+        const images: ImageNode[][] = parseImage(text, resolve)
         if (images.length) {
           const widget = new GalleryWidget(images, from)
           const deco = Decoration.widget({
@@ -72,14 +72,14 @@ const galleryEvents = EditorView.domEventHandlers({
 })
 
 
-export function previewGallery (thumbnail = (url: string) => url) {
+export function previewGallery (resolve = (url: string) => url) {
   const galleryField = StateField.define<DecorationSet> ({
     create (state) {
-      return decorate(state, thumbnail)
+      return decorate(state, resolve)
     },
     update (widgets, tr) {
       if (tr.docChanged) {
-        return decorate(tr.state, thumbnail)
+        return decorate(tr.state, resolve)
       }
       return widgets.map(tr.changes)
     },
