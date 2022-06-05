@@ -1,2 +1,2 @@
 export { previewGallery } from "./src/main"
-export { uploadEventHandlers, uploadImages } from "./src/upload"
+export { uploadEventHandlers, uploadImages, prepareImageBlock } from "./src/upload"

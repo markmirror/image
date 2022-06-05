@@ -46,6 +46,29 @@ export function uploadEventHandlers (upload: (file: File) => Promise<string>, op
 }
 
 
+export function prepareImageBlock (view: EditorView): boolean {
+  const range = view.state.selection.ranges[0]
+  const line = view.state.doc.lineAt(range.from)
+  if (line.number) {
+    let insert = ''
+    if (!/^\s*$/.test(line.text)) {
+      insert += '\n'
+    }
+    const prevLine = view.state.doc.line(line.number - 1)
+    if (!/^\s*$/.test(prevLine.text)) {
+      insert += '\n'
+    }
+    if (insert) {
+      view.dispatch({
+        selection: EditorSelection.cursor(line.to + insert.length),
+        changes: [{ from: line.to, insert }]
+      })
+    }
+    return true
+  }
+  return false
+}
+
 export function uploadImages(view: EditorView, files: FileList, upload: (file: File) => Promise<string>) {
   // filter, only upload images
   const images: File[] = []
@@ -57,24 +80,7 @@ export function uploadImages(view: EditorView, files: FileList, upload: (file: F
 
   if (images.length) {
     // make sure previous line is blank line
-    const range = view.state.selection.ranges[0]
-    const line = view.state.doc.lineAt(range.from)
-    if (line.number) {
-      let insert = ''
-      if (!/^\s*$/.test(line.text)) {
-        insert += '\n'
-      }
-      const prevLine = view.state.doc.line(line.number - 1)
-      if (!/^\s*$/.test(prevLine.text)) {
-        insert += '\n'
-      }
-      if (insert) {
-        view.dispatch({
-          selection: EditorSelection.cursor(line.to + insert.length),
-          changes: [{ from: line.to, insert }]
-        })
-      }
-    }
+    prepareImageBlock(view)
     for (let i = 0; i < images.length; i++) {
       handleUpload(view, images[i], i, images.length, upload)
     }
