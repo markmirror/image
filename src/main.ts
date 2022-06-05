@@ -72,7 +72,7 @@ const galleryEvents = EditorView.domEventHandlers({
 })
 
 
-export function previewImage (thumbnail = (url: string) => url) {
+export function previewGallery (thumbnail = (url: string) => url) {
   const galleryField = StateField.define<DecorationSet> ({
     create (state) {
       return decorate(state, thumbnail)

@@ -1,2 +1,2 @@
-export { previewImage } from './src/main'
-export { uploadImage } from './src/upload'
+export { previewGallery } from "./src/main"
+export { uploadEventHandlers, uploadImages } from "./src/upload"

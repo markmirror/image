@@ -10,17 +10,14 @@ interface UploadOption {
 
 declare type DOMEventHandler = (event: Event, view: EditorView) => boolean | void
 
-export function uploadImage (upload: (file: File) => Promise<string>, options: UploadOption = {}) {
+export function uploadEventHandlers (upload: (file: File) => Promise<string>, options: UploadOption = {}) {
   const events: { paste?: DOMEventHandler, drop?: DOMEventHandler } = {}
 
   const onPaste = (event: Event, view: EditorView) => {
     const { clipboardData } = event as ClipboardEvent
     const files = clipboardData?.files as FileList
     if (files && files.length) {
-      for (let i = 0; i < files.length; i++) {
-        handleUpload(view, files[i], i, upload)
-      }
-      return true
+      return uploadImages(view, files, upload)
     }
     return false
   }
@@ -32,12 +29,9 @@ export function uploadImage (upload: (file: File) => Promise<string>, options: U
       const pos = view.posAtCoords({x: clientX, y: clientY})
       if (pos !== null) {
         // update cursor position
-        view.dispatch({ selection: EditorSelection.cursor(pos + 1) })
+        view.dispatch({ selection: EditorSelection.cursor(pos) })
       }
-      for (let i = 0; i < files.length; i++) {
-        handleUpload(view, files[i], i, upload)
-      }
-      return true
+      return uploadImages(view, files, upload)
     }
     return false
   }
@@ -52,11 +46,53 @@ export function uploadImage (upload: (file: File) => Promise<string>, options: U
 }
 
 
-async function handleUpload(view: EditorView, file: File, index: number, upload: (file: File) => Promise<string>) {
-  const space = index ? ' ' : '\n'
-  const id = Math.random().toString().slice(2, 8)
-  const placeholder = `![${file.name}](<uploading-${id}>)`
-  const transaction = view.state.replaceSelection(space + placeholder)
+export function uploadImages(view: EditorView, files: FileList, upload: (file: File) => Promise<string>) {
+  // filter, only upload images
+  const images: File[] = []
+  for (let i = 0; i < files.length; i++) {
+    if (/^image\//.test(files[i].type)) {
+      images.push(files[i])
+    }
+  }
+
+  if (images.length) {
+    // make sure previous line is blank line
+    const range = view.state.selection.ranges[0]
+    const line = view.state.doc.lineAt(range.from)
+    if (line.number) {
+      let insert = ''
+      if (!/^\s*$/.test(line.text)) {
+        insert += '\n'
+      }
+      const prevLine = view.state.doc.line(line.number - 1)
+      if (!/^\s*$/.test(prevLine.text)) {
+        insert += '\n'
+      }
+      if (insert) {
+        view.dispatch({
+          selection: EditorSelection.cursor(line.to + insert.length),
+          changes: [{ from: line.to, insert }]
+        })
+      }
+    }
+    for (let i = 0; i < images.length; i++) {
+      handleUpload(view, images[i], i, images.length, upload)
+    }
+    return true
+  }
+  return false
+}
+
+async function handleUpload(view: EditorView, file: File, index: number, count: number, upload: (file: File) => Promise<string>) {
+  const space = index ? ' ' : ''
+  const previewURL = URL.createObjectURL(file)
+  const placeholder = `![${file.name}](<${previewURL}>)`
+  let replacement = space + placeholder
+  if (index === count - 1) {
+    replacement += '\n\n'
+  }
+  const transaction = view.state.replaceSelection(replacement)
+  console.log(transaction)
   view.dispatch(transaction)
 
   const url = await upload(file)
@@ -66,6 +102,7 @@ async function handleUpload(view: EditorView, file: File, index: number, upload:
         const targetText = `![${file.name}](<${url}>)`
         const change = { from, to, insert: targetText }
         view.dispatch({ changes: change })
+        URL.revokeObjectURL(previewURL)
       }
     }
   })

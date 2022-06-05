@@ -29,7 +29,7 @@ export default function parse(src: string, thumbnail: (url: string) => string): 
       return []
     }
     // only preview online image
-    if (!/https?:\/\//.test(found2.href)) {
+    if (!/^(blob:)?https?:\/\//.test(found2.href)) {
       return []
     }
     node.src = thumbnail(found2.href)

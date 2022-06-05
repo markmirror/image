@@ -75,19 +75,32 @@ export class GalleryWidget extends WidgetType {
         img.alt = item.alt || ''
         img.title = item.title || ''
 
-        const delButton = document.createElement('button')
-        delButton.type = "button"
-        delButton.ariaLabel = "Delete"
-        delButton.addEventListener("click", e => {
-          fireEvent(e, delButton, 'delete-image', item, this.offset)
-        })
+        if (/^https?:\/\//.test(item.src)) {
+          const delButton = document.createElement('button')
+          delButton.type = "button"
+          delButton.ariaLabel = "Delete"
+          const delIcon = document.createElement('i')
+          delIcon.className = "icon-delete"
+          delButton.appendChild(delIcon)
+          delButton.addEventListener("click", e => {
+            fireEvent(e, delButton, 'delete-image', item, this.offset)
+          })
 
-        figure.addEventListener("click", e => {
-          fireEvent(e, figure, 'click-image', item, this.offset)
-        })
-        figure.addEventListener("dblclick", e => {
-          fireEvent(e, figure, 'select-image', item, this.offset)
-        })
+          figure.addEventListener("click", e => {
+            fireEvent(e, figure, 'click-image', item, this.offset)
+          })
+          figure.addEventListener("dblclick", e => {
+            fireEvent(e, figure, 'select-image', item, this.offset)
+          })
+          figure.appendChild(delButton)
+        } else {
+          const statusDiv = document.createElement('div')
+          statusDiv.className = "mm-gallery-uploading"
+          const statusIcon = document.createElement('i')
+          statusIcon.className = "icon-upload"
+          statusDiv.appendChild(statusIcon)
+          figure.appendChild(statusDiv)
+        }
         return new Promise<RatioMap>((resolve, reject) => {
           img.onload = function () {
             resolve({ figure, ratio: img.naturalWidth / img.naturalHeight })
@@ -97,7 +110,6 @@ export class GalleryWidget extends WidgetType {
           }
           img.src = item.src
           figure.appendChild(img)
-          figure.append(delButton)
           column.appendChild(figure)
         })
       })
