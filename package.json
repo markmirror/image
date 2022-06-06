@@ -1,5 +1,5 @@
 {
-  "name": "@markmirro/image",
+  "name": "@markmirror/image",
   "version": "0.1.0",
   "description": "Preview and upload image for the MarkMirror Markdown editor",
   "author": {
@@ -19,7 +19,7 @@
   "module": "index.js",
   "license": "MIT",
   "dependencies": {
-    "@codemirror/language": "^0.20.2",
+    "@codemirror/language": "^0.20.0",
     "@codemirror/state": "^0.20.0",
     "@codemirror/view": "^0.20.0"
   }
