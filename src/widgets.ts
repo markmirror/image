@@ -18,6 +18,7 @@ export const galleryTheme = EditorView.baseTheme({
     position: "relative",
     margin: 0,
     padding: "2px",
+    flex: 1,
   },
   ".mm-gallery-column button": {
     position: "absolute",
