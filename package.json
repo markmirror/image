@@ -1,6 +1,6 @@
 {
   "name": "@markmirror/image",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Preview and upload image for the MarkMirror Markdown editor",
   "author": {
     "name": "Hsiaoming Yang",
