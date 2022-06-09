@@ -63,7 +63,7 @@ export default function parse(src: string, resolve: (url: string) => string): Im
 
 
 function parseLinkText (src: string, pos: number) {
-  const reg = /(?<!\\)(?:\\\\)*[\[\]]/g
+  const reg = /(?:\\\\)*[\[\]]/g
   reg.lastIndex = pos
 
   let level = 1, found = false, start = pos
@@ -76,6 +76,10 @@ function parseLinkText (src: string, pos: number) {
       break
     }
     pos = reg.lastIndex
+    // because safari doesn't support (?<!\\)
+    if (src[pos - 2] === '\\') {
+      continue
+    }
     const marker = src[pos - 1]
     if (marker === ']') {
       level--
@@ -97,9 +101,8 @@ function parseLinkText (src: string, pos: number) {
   return null
 }
 
-
 function parseLinkHref (src: string, pos: number) {
-  const bracketRe = /\s*<([^<>\n\\\x00]*)>/g
+  const bracketRe = /\s*<([^<>\n]*)>/g
   bracketRe.lastIndex = pos
   const m1 = bracketRe.exec(src)
   if (m1 && m1.index === pos) {
