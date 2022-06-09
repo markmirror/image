@@ -49,7 +49,7 @@ export function uploadEventHandlers (upload: (file: File) => Promise<string>, op
 export function prepareImageBlock (view: EditorView): boolean {
   const range = view.state.selection.ranges[0]
   const line = view.state.doc.lineAt(range.from)
-  if (line.number) {
+  if (line.from) {
     let insert = ''
     if (!/^\s*$/.test(line.text)) {
       insert += '\n'
