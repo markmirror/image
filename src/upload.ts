@@ -1,12 +1,8 @@
 import { EditorView } from '@codemirror/view'
 import { EditorSelection } from '@codemirror/state'
 import { syntaxTree } from '@codemirror/language'
+import { UploadOption } from './types'
 
-
-interface UploadOption {
-  paste?: boolean,
-  drop?: boolean,
-}
 
 declare type DOMEventHandler = (event: Event, view: EditorView) => boolean | void
 

@@ -1,3 +1,8 @@
+export interface UploadOption {
+  paste?: boolean,
+  drop?: boolean,
+}
+
 export interface ImageNode {
   src: string,
   from: number,
