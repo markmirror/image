@@ -94,7 +94,6 @@ async function handleUpload(view: EditorView, file: File, index: number, count: 
     replacement += '\n\n'
   }
   const transaction = view.state.replaceSelection(replacement)
-  console.log(transaction)
   view.dispatch(transaction)
 
   const url = await upload(file)
