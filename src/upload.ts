@@ -1,12 +1,12 @@
 import { EditorView } from '@codemirror/view'
-import { EditorSelection } from '@codemirror/state'
+import { Extension, EditorSelection } from '@codemirror/state'
 import { syntaxTree } from '@codemirror/language'
 import { UploadOption } from './types'
 
 
 declare type DOMEventHandler = (event: Event, view: EditorView) => boolean | void
 
-export function uploadEventHandlers (upload: (file: File) => Promise<string>, options: UploadOption = {}) {
+export function uploadEventHandlers (upload: (file: File) => Promise<string>, options: UploadOption = {}): Extension {
   const events: { paste?: DOMEventHandler, drop?: DOMEventHandler } = {}
 
   const onPaste = (event: Event, view: EditorView) => {

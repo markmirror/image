@@ -1,4 +1,4 @@
-import { EditorState, EditorSelection, Range, RangeSet, StateField } from '@codemirror/state'
+import { Extension, EditorState, EditorSelection, Range, RangeSet, StateField } from '@codemirror/state'
 import { Decoration, DecorationSet, EditorView } from '@codemirror/view'
 import { syntaxTree } from '@codemirror/language'
 import { ImageNode, Position } from './types'
@@ -72,7 +72,7 @@ const galleryEvents = EditorView.domEventHandlers({
 })
 
 
-export function previewGallery (resolve = (url: string) => url) {
+export function previewGallery (resolve = (url: string) => url): (Extension | StateField<DecorationSet>)[] {
   const galleryField = StateField.define<DecorationSet> ({
     create (state) {
       return decorate(state, resolve)
