@@ -1,8 +1,3 @@
-export interface UploadOption {
-  paste?: boolean,
-  drop?: boolean,
-}
-
 export interface ImageNode {
   src: string,
   from: number,
@@ -16,7 +11,12 @@ export interface RatioMap {
   ratio: number,
 }
 
-export interface Position {
-  from: number,
-  to: number,
+export declare type uploadFunc = (file: File, onprogress?: (percent: number) => void) => Promise<string>
+
+export interface PluginOption {
+  preview?: boolean,
+  paste?: boolean,
+  drop?: boolean,
+  upload?: uploadFunc,
+  thumbnail?: (url: string) => string,
 }

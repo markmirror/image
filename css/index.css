@@ -1,0 +1,89 @@
+@import "./icons.css";
+
+@keyframes mm-uploading {
+  from { top: 60% }
+  to { top: 40% }
+}
+
+.mm-gallery img {
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.mm-gallery i.icon-upload,
+.mm-gallery i.icon-delete {
+  mask: var(--icon-url) no-repeat;
+  mask-size: 100% 100%;
+  -webkit-mask: var(--icon-url) no-repeat;
+  -webkit-mask-size: 100% 100%;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  vertical-align: middle;
+  font-style: normal;
+  background-color: currentColor;
+}
+
+.mm-gallery-column {
+  display: flex;
+  width: 100%;
+}
+
+.mm-gallery-column figure {
+  position: relative;
+  margin: 0;
+  padding: 2px;
+  flex: 1;
+}
+
+.mm-gallery-column button {
+  position: absolute;
+  padding: 0;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.mm-gallery-column button:hover {
+  opacity: 1;
+}
+
+.mm-gallery .icon-delete {
+  font-size: 20px;
+}
+
+.mm-gallery-upload-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  margin-top: -25px;
+  margin-left: -25px;
+  text-align: center;
+  animation: mm-uploading 2s ease infinite;
+  z-index: 2;
+}
+
+.mm-gallery-upload-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 0;
+  transition: height 20ms linear;
+  background: rgba(40, 160, 255, 0.2);
+  z-index: 1;
+}
+
+.mm-gallery i.icon-upload {
+  width: 42px;
+  height: 42px;
+  color: white;
+}
