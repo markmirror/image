@@ -12,7 +12,9 @@ declare type DOMEventHandler = (event: Event, view: EditorView) => boolean | voi
 export class ImagePlugin {
   static create (options: PluginOption = {}) {
     return (editor: MarkMirror) => {
-      return new ImagePlugin(editor, options).toExtensions()
+      const plugin = new ImagePlugin(editor, options)
+      editor.registerMethod('uploadImages', plugin.uploadFiles)
+      return plugin.toExtensions()
     }
   }
 

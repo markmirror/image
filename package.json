@@ -1,6 +1,6 @@
 {
   "name": "@markmirror/image",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Preview and upload image for the MarkMirror Markdown editor",
   "author": {
     "name": "Hsiaoming Yang",
@@ -19,6 +19,7 @@
   "module": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@markmirror/core": "^0.3.0",
     "@codemirror/language": "^6.0.0",
     "@codemirror/state": "^6.0.0",
     "@codemirror/view": "^6.0.0"
