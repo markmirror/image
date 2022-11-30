@@ -1,11 +1,11 @@
 import { WidgetType } from '@codemirror/view'
-import { ImageNode, RatioMap } from './types'
+import { ImageNode, RatioMap, thumbnailFunc } from './types'
 
 
 export class GalleryWidget extends WidgetType {
   private origin: GalleryWidget
 
-  constructor (readonly images: ImageNode[][], public offset: number) {
+  constructor (readonly images: ImageNode[][], public offset: number, readonly thumbnail: thumbnailFunc) {
     super()
     this.origin = this
   }
@@ -43,6 +43,7 @@ export class GalleryWidget extends WidgetType {
   toDOM (): HTMLElement {
     const gallery = document.createElement('div')
     gallery.className = 'mm-gallery'
+    const thumbnail = this.thumbnail
     this.images.forEach(items => {
       const column = document.createElement('div')
       column.className = 'mm-gallery-column'
@@ -81,7 +82,7 @@ export class GalleryWidget extends WidgetType {
           img.onerror = function (e) {
             reject(e)
           }
-          img.src = item.src
+          img.src = thumbnail(item.src)
           figure.appendChild(img)
           column.appendChild(figure)
         })

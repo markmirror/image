@@ -2,7 +2,8 @@ import { MarkMirror } from '@markmirror/core'
 import { Extension, EditorState, EditorSelection, Range, RangeSet, StateField } from '@codemirror/state'
 import { Decoration, DecorationSet, EditorView } from '@codemirror/view'
 import { syntaxTree } from '@codemirror/language'
-import { ImageNode, PluginOption } from './types'
+import { SyntaxNodeRef } from '@lezer/common'
+import { PluginOption, thumbnailFunc, previewParse } from './types'
 import { GalleryWidget } from './widget'
 import { galleryEvents } from './gallery'
 import parseImage from './parseImage'
@@ -121,11 +122,19 @@ export class ImagePlugin {
   }
 
   private buildPreviewExtensions () {
-    let resolve: (url: string) => string
+    let thumbnail: thumbnailFunc
     if (this.options.thumbnail !== undefined) {
-      resolve = this.options.thumbnail
+      thumbnail = this.options.thumbnail
     } else {
-      resolve = (url: string) => url
+      thumbnail = (url: string) => url
+    }
+    const parsers: {[key: string]: previewParse}  = {
+      'Paragraph': parseParagraphImages,
+    }
+    if (this.options.previewExtensions) {
+      this.options.previewExtensions.forEach(ext => {
+        parsers[ext.nodeType] = ext.parse
+      })
     }
 
     this.editor.on('uploading', data => {
@@ -139,35 +148,23 @@ export class ImagePlugin {
     const decorate = (state: EditorState): DecorationSet => {
       const widgets: Range<Decoration>[] = []
 
-      let canAdd = false
       syntaxTree(state).iterate({
         enter ({ type }) {
-          if (type.name === "Paragraph") {
-            canAdd = true
-            return true
-          }
-
-          if (type.is("Block")) {
-            return true
-          }
-
-          if (type.name !== "Image") {
-            canAdd = false
-          }
-          return false
+          return type.is("Block")
         },
-        leave ({ type, from, to }) {
-          if (canAdd && type.name === 'Paragraph') {
-            const text = state.doc.sliceString(from, to)
-            const images: ImageNode[][] = parseImage(text, resolve)
+        leave (ref) {
+          const parse = parsers[ref.type.name]
+          if (parse !== undefined) {
+            const text = state.doc.sliceString(ref.from, ref.to)
+            const images = parse(text, ref)
             if (images.length) {
-              const widget = new GalleryWidget(images, from)
+              const widget = new GalleryWidget(images, ref.from, thumbnail)
               const deco = Decoration.widget({
                 widget: widget,
                 side: -1,
                 block: true,
               })
-              widgets.push(deco.range(from))
+              widgets.push(deco.range(ref.from))
             }
           }
         },
@@ -231,6 +228,14 @@ export function prepareImageBlock (view: EditorView): boolean {
     return true
   }
   return false
+}
+
+function parseParagraphImages (text: string, ref: SyntaxNodeRef) {
+  if (ref.node.firstChild?.name == 'Image') {
+    return parseImage(text)
+  } else {
+    return []
+  }
 }
 
 

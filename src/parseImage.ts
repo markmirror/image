@@ -1,7 +1,7 @@
 import { ImageNode } from "./types"
 
 
-export default function parse(src: string, resolve: (url: string) => string): ImageNode[][] {
+export default function parse(src: string): ImageNode[][] {
   const startRe = /\s*!\[/g
   let m = startRe.exec(src)
   if (!m || m.index !== 0) {
@@ -29,11 +29,10 @@ export default function parse(src: string, resolve: (url: string) => string): Im
       return []
     }
 
-    const href = resolve(found2.href)
-    if (!href) {
+    if (!found2.href) {
       return []
     }
-    node.src = href
+    node.src = found2.href
     pos = found2.end
 
     const found3 = parseLinkTitle(src, pos)

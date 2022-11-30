@@ -1,3 +1,5 @@
+import { SyntaxNodeRef } from '@lezer/common'
+
 export interface ImageNode {
   src: string,
   from: number,
@@ -11,12 +13,21 @@ export interface RatioMap {
   ratio: number,
 }
 
+export declare type thumbnailFunc = (url: string) => string
+
 export declare type uploadFunc = (file: File, onprogress?: (percent: number) => void) => Promise<string>
+
+export declare type previewParse = (text: string, ref: SyntaxNodeRef) => ImageNode[][]
+export interface PreviewExtension {
+  nodeType: string,
+  parse: previewParse,
+}
 
 export interface PluginOption {
   preview?: boolean,
   paste?: boolean,
   drop?: boolean,
   upload?: uploadFunc,
-  thumbnail?: (url: string) => string,
+  thumbnail?: thumbnailFunc,
+  previewExtensions?: PreviewExtension[],
 }
