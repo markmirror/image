@@ -14,7 +14,6 @@ export class ImagePlugin {
   static create (options: PluginOption = {}) {
     return (editor: MarkMirror) => {
       const plugin = new ImagePlugin(editor, options)
-      editor.registerMethod('uploadImages', plugin.uploadFiles)
       return plugin.toExtensions()
     }
   }
