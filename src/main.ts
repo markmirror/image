@@ -10,14 +10,17 @@ import parseImage from './parseImage'
 
 declare type DOMEventHandler = (event: Event, view: EditorView) => boolean | void
 
-export class ImagePlugin {
-  static create (options: PluginOption = {}) {
-    return (editor: MarkMirror) => {
-      const plugin = new ImagePlugin(editor, options)
-      return plugin.toExtensions()
-    }
-  }
 
+export const image = (options: PluginOption = {}) => {
+  return (editor: MarkMirror) => {
+    const plugin = new ImagePlugin(editor, options)
+    editor.registerInvokeHandler('uploadImages', plugin.uploadFiles)
+    return plugin.toExtensions()
+  }
+}
+
+
+export class ImagePlugin {
   constructor (readonly editor: MarkMirror, readonly options: PluginOption = {}) {}
 
   uploadFiles (files: FileList, view?: EditorView) {
@@ -65,7 +68,7 @@ export class ImagePlugin {
     view.dispatch(transaction)
 
     const url = await upload(file, percent => {
-      this.editor.trigger('uploading', {
+      this.editor.triggerEvent('uploading', {
         percent,
         file,
         blob: previewURL,
@@ -136,7 +139,7 @@ export class ImagePlugin {
       })
     }
 
-    this.editor.on('uploading', data => {
+    this.editor.addEventHandler('uploading', data => {
       if (this.editor.element !== undefined) {
         const img = this.editor.element.querySelector('img[src="' + data.blob + '"]')
         const el = img?.parentNode?.querySelector('.mm-gallery-upload-progress')

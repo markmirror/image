@@ -1,1 +1,1 @@
-export { ImagePlugin, prepareImageBlock } from "./src/main"
+export { image, ImagePlugin, prepareImageBlock } from "./src/main"
