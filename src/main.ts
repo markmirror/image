@@ -3,7 +3,7 @@ import { Extension, EditorState, EditorSelection, Range, RangeSet, StateField } 
 import { Decoration, DecorationSet, EditorView } from '@codemirror/view'
 import { syntaxTree } from '@codemirror/language'
 import { SyntaxNodeRef } from '@lezer/common'
-import { PluginOption, thumbnailFunc, previewParse } from './types'
+import type { PluginOption, thumbnailFunc, previewParse, ImageType } from './types'
 import { GalleryWidget } from './widget'
 import { galleryEvents } from './gallery'
 import parseImage from './parseImage'
@@ -15,6 +15,7 @@ export const image = (options: PluginOption = {}) => {
   return (editor: MarkMirror) => {
     const plugin = new ImagePlugin(editor, options)
     editor.registerInvokeHandler('uploadImages', plugin.uploadFiles)
+    editor.registerInvokeHandler('insertImages', plugin.insertImages)
     return plugin.toExtensions()
   }
 }
@@ -49,6 +50,19 @@ export class ImagePlugin {
       return true
     }
     return false
+  }
+
+  insertImages (images: ImageType[]) {
+    const view = this.editor.view
+    if (view) {
+      prepareImageBlock(view)
+
+      const text: string = images.map(img => {
+        return `![${img.alt}](${img.src} "${img.title}")`
+      }).join(' ')
+      const transaction = view.state.replaceSelection(text)
+      view.dispatch(transaction)
+    }
   }
 
   private async handleUpload(view: EditorView, file: File, index: number, count: number) {

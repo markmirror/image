@@ -1,5 +1,11 @@
 import { SyntaxNodeRef } from '@lezer/common'
 
+export interface ImageType {
+  src: string,
+  alt?: string,
+  title?: string,
+}
+
 export interface ImageNode {
   src: string,
   from: number,
