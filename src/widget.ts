@@ -1,6 +1,8 @@
 import { WidgetType } from '@codemirror/view'
 import { ImageNode, RatioMap, thumbnailFunc } from './types'
 
+const PROGRESS_HTML = '<div class="mm-gallery-upload-icon"><i class="icon-upload"></i></div><div class="mm-gallery-upload-progress"></div>'
+const ERROR_HTML = '<div class="mm-gallery-failed-text"><span>Image failed to load</span></div>'
 
 export class GalleryWidget extends WidgetType {
   private origin: GalleryWidget
@@ -50,6 +52,7 @@ export class GalleryWidget extends WidgetType {
       const results = items.map(item => {
         const figure = document.createElement('figure')
         const img = new Image()
+        img.referrerPolicy = 'no-referrer'
         img.alt = item.alt || ''
         img.title = item.title || ''
 
@@ -65,7 +68,7 @@ export class GalleryWidget extends WidgetType {
         if (/^blob:/.test(item.src)) {
           const statusDiv = document.createElement('div')
           statusDiv.className = "mm-gallery-upload"
-          statusDiv.innerHTML = '<div class="mm-gallery-upload-icon"><i class="icon-upload"></i></div><div class="mm-gallery-upload-progress"></div>'
+          statusDiv.innerHTML = PROGRESS_HTML
           figure.appendChild(statusDiv)
         }
 
@@ -79,8 +82,13 @@ export class GalleryWidget extends WidgetType {
           img.onload = function () {
             resolve({ figure, ratio: img.naturalWidth / img.naturalHeight })
           }
-          img.onerror = function (e) {
-            reject(e)
+          img.onerror = function () {
+            resolve({ figure, ratio: 1 })
+            figure.removeChild(img)
+            const div = document.createElement('div')
+            div.className = 'mm-gallery-failed'
+            div.innerHTML = ERROR_HTML
+            figure.appendChild(div)
           }
           img.src = thumbnail(item.src)
           figure.appendChild(img)

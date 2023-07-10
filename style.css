@@ -5,6 +5,15 @@
   to { top: 40% }
 }
 
+.markmirror {
+  --mm-c-image-progress: rgba(40, 160, 255, 0.2);
+  --mm-c-image-failed: rgba(0, 0, 0, 0.1);
+}
+
+.mm-gallery {
+  user-select: none;
+}
+
 .mm-gallery img {
   max-width: 100%;
   vertical-align: middle;
@@ -78,7 +87,7 @@
   width: 100%;
   height: 0;
   transition: height 20ms linear;
-  background: rgba(40, 160, 255, 0.2);
+  background: var(--mm-c-image-progress);
   z-index: 1;
 }
 
@@ -86,4 +95,18 @@
   width: 42px;
   height: 42px;
   color: white;
+}
+
+.mm-gallery-failed {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  text-align: center;
+  background-color: var(--mm-c-image-failed);
+}
+
+.mm-gallery-failed-text {
+  padding: 20px;
+  width: 100%;
 }
